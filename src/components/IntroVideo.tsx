@@ -7,17 +7,31 @@ interface Props {
   onDone: () => void;
 }
 
+/** Schermo più alto che largo: il video verticale 9:16 riempie il telefono. */
+export function isPortraitScreen(): boolean {
+  return window.matchMedia("(orientation: portrait)").matches;
+}
+
+/** Sceglie il file in base all'orientamento. In orizzontale resta il 16:9. */
+export function pickIntroVideo(portrait: boolean): string {
+  return portrait && SITE.introVideoPortrait ? SITE.introVideoPortrait : SITE.introVideo;
+}
+
 /**
  * Video di apertura a schermo intero.
  * - parte in automatico (muto, perché i browser bloccano l'audio automatico)
  * - si può attivare l'audio o saltare
- * - se il file non esiste ancora, o è già stato visto in questa sessione, viene saltato
+ * - in verticale usa intro-9x16.mp4, in orizzontale intro.mp4
+ * - se il file verticale manca, riprova con quello orizzontale
+ * - se manca anche quello, o è già stato visto in questa sessione, viene saltato
  */
 export default function IntroVideo({ onDone }: Props) {
   const ref = useRef<HTMLVideoElement>(null);
+  const fellBack = useRef(false);
   const [muted, setMuted] = useState(true);
   const [needsTap, setNeedsTap] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [src, setSrc] = useState(() => pickIntroVideo(isPortraitScreen()));
 
   const finish = () => {
     if (leaving) return;
@@ -29,8 +43,9 @@ export default function IntroVideo({ onDone }: Props) {
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
+    v.load();
     v.play().catch(() => setNeedsTap(true));
-  }, []);
+  }, [src]);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -46,17 +61,26 @@ export default function IntroVideo({ onDone }: Props) {
     setMuted(v.muted);
   };
 
+  const handleError = () => {
+    if (!fellBack.current && src !== SITE.introVideo) {
+      fellBack.current = true;
+      setSrc(SITE.introVideo);
+      return;
+    }
+    finish();
+  };
+
   return (
     <div className={`intro ${leaving ? "intro--leaving" : ""}`} role="dialog" aria-label="Video di apertura">
       <video
         ref={ref}
         className="intro__video"
-        src={SITE.introVideo}
+        src={src}
         muted
         playsInline
         preload="auto"
         onEnded={finish}
-        onError={finish}
+        onError={handleError}
       />
       <div className="intro__vignette" />
 

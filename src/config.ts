@@ -7,8 +7,11 @@
 export const SITE = {
   name: "Dark Ghost Cards",
   tagline: "Compravendita di carte collezionabili",
-  // Percorso del video di apertura (metti il file in /public/video/)
+  // Video di apertura in /public/video/.
+  // intro.mp4 = 16:9, per computer e telefono in orizzontale.
+  // intro-9x16.mp4 = 9:16, per il telefono in verticale.
   introVideo: "/video/intro.mp4",
+  introVideoPortrait: "/video/intro-9x16.mp4",
   // Contatti: lascia "" quelli che non hai, il sito li nasconde automaticamente.
   // Ogni canale compare come icona/logo cliccabile. Inserisci il link completo (https://...).
   contacts: {

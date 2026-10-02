@@ -1,7 +1,16 @@
-Metti qui il video di apertura e chiamalo:  intro.mp4
+Metti qui i video di apertura.
+
+File:
+- intro.mp4       formato 16:9 (computer e telefono in orizzontale)
+- intro-9x16.mp4  formato 9:16 (telefono in verticale)
+
+Il sito sceglie da solo in base a come è tenuto il dispositivo.
+Se manca il file verticale, usa quello orizzontale.
+Se manca anche quello, salta l'intro.
 
 Consigli:
-- formato MP4 (H.264 + AAC), 1920x1080, idealmente sotto i 15 MB
+- formato MP4 (H.264 + AAC)
+- 16:9 a 1920x1080, 9:16 a 1080x1920
+- idealmente sotto i 15 MB ciascuno
 - durata 5-15 secondi
-- finché il file non c'è, il sito salta automaticamente l'intro
-- per cambiare nome/percorso: src/config.ts -> SITE.introVideo
+- per cambiare nome/percorso: src/config.ts -> SITE.introVideo e SITE.introVideoPortrait
