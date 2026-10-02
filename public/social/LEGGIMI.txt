@@ -1,0 +1,3 @@
+﻿Il logo di CardTrader non e' incluso nelle icone standard.
+Metti qui il file del logo con il nome:  cardtrader.png  (quadrato, sfondo trasparente, idealmente bianco o viola chiaro).
+Finche' non c'e', il sito mostra la sigla CT al suo posto.
