@@ -122,13 +122,17 @@ code { background: var(--surface-2); padding: 0 6px; border-radius: 4px; color: 
   filter: drop-shadow(0 0 40px rgba(138,43,226,.7));
   animation: float 6s ease-in-out infinite;
 }
-.hero__video {
+.hero__video,
+.hero__still {
+  position: absolute; inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
   background: #000;
 }
+.hero__video--hidden,
+.hero__still--hidden { opacity: 0; pointer-events: none; }
 .hero__video-controls {
   position: absolute; z-index: 2;
   left: 0; right: 0;

@@ -8,21 +8,31 @@ interface Props {
 
 export default function Hero({ totalCards, totalCopies }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [showLogo, setShowLogo] = useState(false);
+  const stillRef = useRef<HTMLCanvasElement>(null);
+  const [frozen, setFrozen] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [muted, setMuted] = useState(true);
   const [needsTap, setNeedsTap] = useState(false);
 
   useEffect(() => {
     const v = videoRef.current;
-    if (!v) return;
-    const onEnd = () => setShowLogo(true);
+    if (!v || failed) return;
+    const onEnd = () => {
+      const still = stillRef.current;
+      if (still && v.videoWidth) {
+        still.width = v.videoWidth;
+        still.height = v.videoHeight;
+        still.getContext("2d")?.drawImage(v, 0, 0, still.width, still.height);
+      }
+      setFrozen(true);
+    };
     v.addEventListener("ended", onEnd);
     return () => v.removeEventListener("ended", onEnd);
-  }, [showLogo]);
+  }, [failed, frozen]);
 
   useEffect(() => {
     const v = videoRef.current;
-    if (!v || showLogo) return;
+    if (!v || frozen || failed) return;
 
     const play = () => {
       v.play().catch(() => setNeedsTap(true));
@@ -42,11 +52,11 @@ export default function Hero({ totalCards, totalCopies }: Props) {
       v.load();
     }
     return () => v.removeEventListener("loadeddata", onReady);
-  }, [showLogo]);
+  }, [frozen, failed]);
 
   const replay = () => {
     setNeedsTap(false);
-    setShowLogo(false);
+    setFrozen(false);
   };
 
   const toggleSound = () => {
@@ -65,30 +75,30 @@ export default function Hero({ totalCards, totalCopies }: Props) {
     <section className="hero" id="top">
       <div className="hero__smoke" aria-hidden />
       <div className="hero__inner">
-        <div className={`hero__media ${showLogo ? "hero__media--logo" : ""}`}>
-          {showLogo ? (
-            <img
-              src="/logo.png"
-              alt={SITE.name}
-              width={800}
-              height={800}
-              className="hero__logo"
-            />
+        <div className={`hero__media ${failed ? "hero__media--logo" : ""}`}>
+          {failed ? (
+            <img src="/logo.png" alt={SITE.name} width={800} height={800} className="hero__logo" />
           ) : (
-            <video
-              ref={videoRef}
-              className="hero__video"
-              src={SITE.introVideo}
-              muted={muted}
-              playsInline
-              preload="auto"
-              aria-label="Video di Dark Ghost Cards"
-              onEnded={() => setShowLogo(true)}
-              onError={() => setShowLogo(true)}
-            />
+            <>
+              <video
+                ref={videoRef}
+                className={`hero__video ${frozen ? "hero__video--hidden" : ""}`}
+                src={SITE.introVideo}
+                muted={muted}
+                playsInline
+                preload="auto"
+                aria-label="Video di Dark Ghost Cards"
+                onError={() => setFailed(true)}
+              />
+              <canvas
+                ref={stillRef}
+                className={`hero__still ${frozen ? "" : "hero__still--hidden"}`}
+                aria-hidden={!frozen}
+              />
+            </>
           )}
 
-          {!showLogo && (
+          {!frozen && !failed && (
             <div className="hero__video-controls">
               {needsTap && (
                 <button type="button" className="btn btn--primary" onClick={playNow}>
@@ -102,7 +112,7 @@ export default function Hero({ totalCards, totalCopies }: Props) {
           )}
         </div>
 
-        {showLogo && (
+        {frozen && (
           <button type="button" className="btn btn--ghost hero__replay" onClick={replay}>
             ▶ Rivedi il video
           </button>
