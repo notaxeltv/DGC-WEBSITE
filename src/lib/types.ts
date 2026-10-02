@@ -15,13 +15,8 @@ export interface Card {
   rarity: string;
   /** Id normalizzato per i filtri (es. "holo-rare"). Vuoto se manca. */
   rarityId: string;
-  /**
-   * Tipo di reverse. Vuoto = non è una reverse.
-   * epoca = timbro del set (EX Team Rocket Returns e set EX simili).
-   * moderna = da Evoluzioni a Paldea in poi.
-   * generica = reverse di un altro motivo, o tipo non indicato.
-   */
-  reverse: "" | "epoca" | "moderna" | "generica";
+  /** Vuoto = non reverse. reverse = reverse. stamped = reverse con timbro del set. */
+  reverse: "" | "reverse" | "stamped";
   price: number | null;
   quantity: number;
   image: string | null;

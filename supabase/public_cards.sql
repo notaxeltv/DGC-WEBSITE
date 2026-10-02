@@ -46,18 +46,13 @@ alter table public.cards add column if not exists ebay_url text;
 --   La rara olografica è una rarità: il foil sta sull'illustrazione.
 --
 -- reverse_style, solo uno di questi valori (o vuoto):
---   epoca    Timbro del logo/nome del set dentro l'illustrazione.
---            Vale da EX Team Rocket Returns e per i set EX successivi
---            con lo stesso timbro (Deoxys, Emerald, Unseen Forces...).
---            Non è il set Team Rocket del 2000, che non aveva queste reverse.
---   moderna  Da Scarlet e Violet in poi, quindi anche Evoluzioni a Paldea:
---            il foil è sul corpo della carta (motivo a ciottoli e simboli
---            del tipo), non un timbro del set. Restano "moderna" anche le
---            reverse più recenti a Poké Ball, Master Ball o simboli energia.
---   generica È una reverse, ma di un altro motivo (es. i fuochi d'artificio
---            della Legendary Collection) oppure il tipo non è ancora indicato.
---   vuoto    Non è una reverse.
+--   reverse   è una reverse
+--   stamped   reverse con il timbro del set sulla carta
+--   vuoto     non è una reverse
 -- Non scrivere la reverse in is_foil: quel campo resta il foil sull'arte.
+-- Se avevi già i valori precedenti, allineali una volta:
+--   update public.cards set reverse_style = 'stamped' where reverse_style = 'epoca';
+--   update public.cards set reverse_style = 'reverse' where reverse_style in ('moderna', 'generica');
 -- ------------------------------------------------------------
 alter table public.cards add column if not exists rarity text;
 alter table public.cards add column if not exists reverse_style text;
@@ -79,7 +74,7 @@ select
   is_foil,
   is_japanese,
   rarity,                                                -- rarità (PASSO C)
-  reverse_style,                                         -- epoca | moderna | generica (PASSO C)
+  reverse_style,                                         -- reverse | stamped (PASSO C)
   -- game,                                               -- <-- PASSO A: togli "--" dopo averlo fatto
   coalesce(target_price, current_market_price) as price,  -- prezzo mostrato sul sito
   image_url,

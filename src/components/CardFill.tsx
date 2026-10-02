@@ -3,10 +3,9 @@ import { CONDITION_LABELS } from "../config";
 import { lookupCardByCode, type CardDraft } from "../lib/cardLookup";
 
 const REVERSE = [
-  { value: "", label: "Non è una reverse" },
-  { value: "epoca", label: "Epoca (timbro del set)" },
-  { value: "moderna", label: "Moderna (da Paldea)" },
-  { value: "generica", label: "Altro motivo" },
+  { value: "", label: "Non reverse" },
+  { value: "reverse", label: "Reverse" },
+  { value: "stamped", label: "Stamped" },
 ];
 
 export default function CardFill() {

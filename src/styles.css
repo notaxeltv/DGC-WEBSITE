@@ -244,7 +244,7 @@ code { background: var(--surface-2); padding: 0 6px; border-radius: 4px; color: 
   top: auto; bottom: .6rem; max-width: calc(100% - 1.2rem);
   background: rgba(5, 2, 8, .88); color: var(--cyan); border: 1px solid rgba(0, 255, 204, .55);
 }
-.card__badge--reverse-epoca { color: #ffd27a; border-color: rgba(255, 210, 122, .75); }
+.card__badge--reverse-stamped { color: #ffd27a; border-color: rgba(255, 210, 122, .75); }
 .card__badge--out { background: var(--danger); color: #fff; left: auto; right: .6rem; }
 
 .card__body { padding: 1rem 1rem 1.2rem; display: flex; flex-direction: column; gap: .5rem; flex: 1; }

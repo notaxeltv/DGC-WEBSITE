@@ -10,7 +10,7 @@ import ConditionGuide from "./ConditionGuide";
 type Sort = "name" | "price-asc" | "price-desc" | "recent";
 type FoilFilter = "" | "si" | "no";
 type PriceBand = "" | "sotto50" | "50-100" | "oltre100";
-type ReverseFilter = "" | ReverseStyle | "qualsiasi" | "no";
+type ReverseFilter = "" | ReverseStyle | "no";
 
 const SORTS: Sort[] = ["name", "price-asc", "price-desc", "recent"];
 const PRICES: PriceBand[] = ["", "sotto50", "50-100", "oltre100"];
@@ -21,14 +21,12 @@ const PRICE_LABEL: Record<Exclude<PriceBand, "">, string> = {
   oltre100: "Oltre 100 €",
 };
 
-const REVERSES: ReverseFilter[] = ["", "epoca", "moderna", "generica", "qualsiasi", "no"];
+const REVERSES: ReverseFilter[] = ["", "reverse", "stamped", "no"];
 
 const REVERSE_LABEL: Record<Exclude<ReverseFilter, "">, string> = {
-  epoca: "Reverse d'epoca (timbro del set)",
-  moderna: "Reverse moderna (da Paldea)",
-  generica: "Reverse (altro motivo)",
-  qualsiasi: "Qualsiasi reverse",
-  no: "Senza reverse",
+  reverse: "Reverse",
+  stamped: "Stamped",
+  no: "Non reverse",
 };
 
 interface Props {
@@ -43,7 +41,11 @@ const unique = (arr: string[]) => Array.from(new Set(arr.filter(Boolean))).sort(
 
 const asFoil = (v: string | null): FoilFilter => (v === "si" || v === "no" ? v : "");
 const asPrice = (v: string | null): PriceBand => (PRICES.includes(v as PriceBand) ? (v as PriceBand) : "");
-const asReverse = (v: string | null): ReverseFilter => (REVERSES.includes(v as ReverseFilter) ? (v as ReverseFilter) : "");
+const asReverse = (v: string | null): ReverseFilter => {
+  if (v === "epoca") return "stamped";
+  if (v === "moderna" || v === "generica" || v === "qualsiasi") return "reverse";
+  return REVERSES.includes(v as ReverseFilter) ? (v as ReverseFilter) : "";
+};
 
 /** Legge i filtri dal link (es. ?q=charizard&gioco=Pokémon) così le ricerche si possono condividere */
 function readUrl() {
@@ -75,7 +77,6 @@ function matchesPrice(price: number | null, band: PriceBand) {
 function matchesReverse(card: Card, filter: ReverseFilter) {
   if (!filter) return true;
   if (filter === "no") return !card.reverse;
-  if (filter === "qualsiasi") return Boolean(card.reverse);
   return card.reverse === filter;
 }
 
@@ -290,7 +291,7 @@ export default function Catalog({ cards, loading, error, demo, wishlist }: Props
               ))}
             </select>
             <p className="filters__hint">
-              La reverse non è la rarità olografica. D'epoca: da EX Team Rocket Returns il logo del set è stampato nell'illustrazione. Moderna: da Evoluzioni a Paldea il foil è sul corpo della carta (ciottoli, poi anche Poké Ball o Master Ball).
+              Reverse e stamped sono due stampe diverse. Stamped ha il timbro del set sulla carta. Nessuna delle due è la rarità olografica.
             </p>
             <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Ordina">
               <option value="name">Nome A–Z</option>

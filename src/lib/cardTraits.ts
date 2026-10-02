@@ -105,38 +105,16 @@ export function rarityLabel(raw: string): string {
 }
 
 /**
- * Tipo di reverse, distinto dalla rarità.
- * - epoca: timbro del logo/nome del set nell'illustrazione
- *   (da EX Team Rocket Returns, nell'era EX). Non è il set Team Rocket del 2000.
- * - moderna: da Scarlet e Violet, Evoluzioni a Paldea in poi. Foil sul corpo
- *   della carta (ciottoli e simboli del tipo). Anche Poké Ball, Master Ball
- *   e il motivo a simboli energia dei set più recenti.
- * - generica: è una reverse, ma non è uno di quei due tipi
- *   (es. fuochi d'artificio della Legendary Collection) o il tipo non è indicato.
+ * Tre soli casi, distinti dalla rarità e dal foil.
+ * - stamped: reverse con il timbro del set sulla carta.
+ * - reverse: le altre reverse.
+ * - vuoto: non è una reverse.
  */
-export type ReverseStyle = "epoca" | "moderna" | "generica";
+export type ReverseStyle = "reverse" | "stamped";
 
-const EPOCA = ["epoca", "timbro", "set stamp", "set logo", "logo del set", "rocket returns", "ex team rocket"];
-const MODERNA = [
-  "moderna",
-  "moderno",
-  "poke ball",
-  "pokeball",
-  "master ball",
-  "masterball",
-  "paldea",
-  "ciottol",
-  "cobblestone",
-  "ball reverse",
-  "energy reverse",
-  "simbolo energia",
-  "simboli energia",
-  "ascesa eroica",
-  "ascended heroes",
-  "scarlet",
-];
-
-const GENERIC = new Set(["reverse", "reverse holo", "rh", "rev", "si", "yes", "y", "true", "1"]);
+const STAMPED = ["stamped", "stamp", "timbro", "set stamp", "set logo", "logo del set", "epoca", "rocket returns", "ex team rocket"];
+const AS_REVERSE = ["moderna", "moderno", "generica", "poke ball", "pokeball", "master ball", "masterball", "paldea"];
+const REVERSE = new Set(["reverse", "reverse holo", "rh", "rev", "si", "yes", "y", "true", "1", ...AS_REVERSE]);
 const NOT_REVERSE = new Set(["no", "non", "false", "0", "n", "standard", "normale", "regular", "base"]);
 
 function hasPhrase(key: string, phrases: string[]) {
@@ -144,28 +122,24 @@ function hasPhrase(key: string, phrases: string[]) {
 }
 
 export function reverseStyle(raw: unknown): ReverseStyle | "" {
-  if (raw === true) return "generica";
+  if (raw === true) return "reverse";
   if (raw === false || raw === null || raw === undefined) return "";
   const key = norm(String(raw));
   if (!key || NOT_REVERSE.has(key)) return "";
   if (key.startsWith("non ") || key.startsWith("no ") || key.startsWith("senza ")) return "";
-  if (key === "sv") return "moderna";
-  if (hasPhrase(key, EPOCA)) return "epoca";
-  if (hasPhrase(key, MODERNA)) return "moderna";
-  if (GENERIC.has(key) || key.includes("reverse")) return "generica";
+  if (hasPhrase(key, STAMPED)) return "stamped";
+  if (hasPhrase(key, AS_REVERSE) || REVERSE.has(key) || key.includes("reverse")) return "reverse";
   return "";
 }
 
 export function reverseLabel(style: ReverseStyle | ""): string {
-  if (style === "epoca") return "Reverse d'epoca";
-  if (style === "moderna") return "Reverse moderna";
-  if (style === "generica") return "Reverse";
+  if (style === "stamped") return "Stamped";
+  if (style === "reverse") return "Reverse";
   return "";
 }
 
 export function reverseDetail(style: ReverseStyle | ""): string {
-  if (style === "epoca") return "D'epoca: timbro del set nell'illustrazione";
-  if (style === "moderna") return "Moderna: da Evoluzioni a Paldea in poi";
-  if (style === "generica") return "Sì, motivo non indicato";
+  if (style === "stamped") return "Stamped";
+  if (style === "reverse") return "Reverse";
   return "";
 }

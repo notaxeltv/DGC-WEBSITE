@@ -57,7 +57,7 @@ export const COLUMNS: Record<
   language: "language", // lingua
   japanese: "is_japanese", // carta giapponese (sì/no)
   rarity: "rarity", // rarità (testo). Vedi supabase/public_cards.sql
-  // Tipo di reverse: epoca | moderna | generica. Null = non è una reverse.
+  // Tipo di reverse: reverse | stamped. Vuoto = non è una reverse.
   // Non si deduce da is_foil. Vedi supabase/public_cards.sql
   reverse: "reverse_style",
   price: "price", // prezzo di vendita (calcolato nella vista)
