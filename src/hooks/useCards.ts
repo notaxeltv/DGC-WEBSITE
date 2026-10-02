@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { CARDS_TABLE, COLUMNS, GROUP_IDENTICAL_COPIES, HIDE_OUT_OF_STOCK, MIN_PRICE, ONLY_WHERE, REFRESH_SECONDS } from "../config";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 import { MOCK_CARDS } from "../lib/mockData";
+import { rarityId, reverseStyle } from "../lib/cardTraits";
 import { MARKETS, type Card, type MarketId } from "../lib/types";
 
 type Row = Record<string, unknown>;
@@ -46,6 +47,8 @@ function toCard(row: Row): Card {
     condition: str(get(row, COLUMNS.condition)),
     language: str(get(row, COLUMNS.language)),
     rarity: str(get(row, COLUMNS.rarity)),
+    rarityId: rarityId(str(get(row, COLUMNS.rarity))),
+    reverse: reverseStyle(get(row, COLUMNS.reverse)),
     price: price === null || price === undefined ? null : Number(price),
     // senza colonna quantità, ogni riga è una copia
     quantity: COLUMNS.quantity ? Number(qty ?? 0) || 0 : 1,
@@ -61,7 +64,7 @@ function toCard(row: Row): Card {
 function groupCopies(cards: Card[]): Card[] {
   const map = new Map<string, Card>();
   for (const c of cards) {
-    const key = [c.name, c.set, c.number, c.game, c.condition, c.language, c.japanese, c.rarity, c.foil, c.price].join("|");
+    const key = [c.name, c.set, c.number, c.game, c.condition, c.language, c.japanese, c.rarityId, c.reverse, c.foil, c.price].join("|");
     const existing = map.get(key);
     if (!existing) {
       map.set(key, { ...c });

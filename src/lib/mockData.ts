@@ -1,3 +1,4 @@
+import { rarityId, type ReverseStyle } from "./cardTraits";
 import type { Card } from "./types";
 
 /** Dati dimostrativi, usati solo se Supabase non è ancora configurato. */
@@ -12,6 +13,7 @@ const base = (
   price: number,
   quantity: number,
   foil = false,
+  reverse: ReverseStyle | "" = "",
 ): Card => ({
   id,
   name,
@@ -22,6 +24,8 @@ const base = (
   condition,
   language,
   rarity,
+  rarityId: rarityId(rarity),
+  reverse,
   price,
   quantity,
   image: null,
@@ -41,4 +45,11 @@ export const MOCK_CARDS: Card[] = [
   base("6", "Dark Magician", "LOB", "Yu-Gi-Oh!", "SP", "IT", "Ultra Rare", 35, 4),
   base("7", "Sheoldred, the Apocalypse", "Dominaria United", "Magic", "NM", "EN", "Mythic", 58, 5, true),
   base("8", "Mewtwo", "Base Set", "Pokémon", "LP", "EN", "Rare Holo", 120, 0, true),
+  // Reverse d'epoca: timbro del set nell'illustrazione (EX Team Rocket Returns).
+  base("9", "Dark Dragonite", "EX Team Rocket Returns", "Pokémon", "NM", "EN", "Rare", 48, 1, false, "epoca"),
+  // Reverse moderna: foil sul corpo della carta (Evoluzioni a Paldea). Stessa carta anche senza reverse.
+  base("10", "Squawkabilly", "Paldea Evolved", "Pokémon", "NM", "IT", "Uncommon", 22, 2, false, "moderna"),
+  base("11", "Squawkabilly", "Paldea Evolved", "Pokémon", "NM", "IT", "Uncommon", 22, 1),
+  // Reverse di un altro motivo (fuochi d'artificio): non è né il timbro EX né Paldea.
+  base("12", "Gloom", "Legendary Collection", "Pokémon", "NM", "EN", "Common", 24, 1, false, "generica"),
 ];

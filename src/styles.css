@@ -183,6 +183,7 @@ code { background: var(--surface-2); padding: 0 6px; border-radius: 4px; color: 
 .filters option { background: var(--surface); }
 .filters__apply { display: none; }
 .filters__backdrop { display: none; }
+.filters__hint { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: .8rem; line-height: 1.45; }
 .price-bands { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .5rem; }
 .price-band {
   padding: .45rem .8rem; color: var(--lilac); background: transparent;
@@ -223,6 +224,11 @@ code { background: var(--surface-2); padding: 0 6px; border-radius: 4px; color: 
 .card__placeholder { width: 100%; height: 100%; display: grid; place-items: center; font-size: 4rem; background: radial-gradient(circle, rgba(138,43,226,.35), #000 70%); }
 .card__badge { position: absolute; top: .6rem; left: .6rem; padding: .15rem .6rem; font-family: var(--font-display); font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .card__badge--foil { background: linear-gradient(90deg, var(--purple), var(--cyan)); color: #000; }
+.card__badge--reverse {
+  top: auto; bottom: .6rem; max-width: calc(100% - 1.2rem);
+  background: rgba(5, 2, 8, .88); color: var(--cyan); border: 1px solid rgba(0, 255, 204, .55);
+}
+.card__badge--reverse-epoca { color: #ffd27a; border-color: rgba(255, 210, 122, .75); }
 .card__badge--out { background: var(--danger); color: #fff; left: auto; right: .6rem; }
 
 .card__body { padding: 1rem 1rem 1.2rem; display: flex; flex-direction: column; gap: .5rem; flex: 1; }

@@ -11,7 +11,17 @@ export interface Card {
   game: string;
   condition: string;
   language: string;
+  /** Testo di rarità come è salvato (es. "Rare Holo"). */
   rarity: string;
+  /** Id normalizzato per i filtri (es. "holo-rare"). Vuoto se manca. */
+  rarityId: string;
+  /**
+   * Tipo di reverse. Vuoto = non è una reverse.
+   * epoca = timbro del set (EX Team Rocket Returns e set EX simili).
+   * moderna = da Evoluzioni a Paldea in poi.
+   * generica = reverse di un altro motivo, o tipo non indicato.
+   */
+  reverse: "" | "epoca" | "moderna" | "generica";
   price: number | null;
   quantity: number;
   image: string | null;

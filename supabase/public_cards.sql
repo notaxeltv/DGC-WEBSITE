@@ -38,6 +38,30 @@ alter table public.cards add column if not exists cardmarket_url text;
 alter table public.cards add column if not exists vinted_url text;
 alter table public.cards add column if not exists ebay_url text;
 
+-- ------------------------------------------------------------
+-- PASSO C - rarità e tipo di reverse
+-- Due colonne di testo, vuote. Non modificano le carte già caricate.
+-- Rarità: il nome usato da CardMarket, in italiano o in inglese
+--   (es. "Holo Rare", "Rara olografica", "Illustration Rare", "Ultra Rare").
+--   La rara olografica è una rarità: il foil sta sull'illustrazione.
+--
+-- reverse_style, solo uno di questi valori (o vuoto):
+--   epoca    Timbro del logo/nome del set dentro l'illustrazione.
+--            Vale da EX Team Rocket Returns e per i set EX successivi
+--            con lo stesso timbro (Deoxys, Emerald, Unseen Forces...).
+--            Non è il set Team Rocket del 2000, che non aveva queste reverse.
+--   moderna  Da Scarlet e Violet in poi, quindi anche Evoluzioni a Paldea:
+--            il foil è sul corpo della carta (motivo a ciottoli e simboli
+--            del tipo), non un timbro del set. Restano "moderna" anche le
+--            reverse più recenti a Poké Ball, Master Ball o simboli energia.
+--   generica È una reverse, ma di un altro motivo (es. i fuochi d'artificio
+--            della Legendary Collection) oppure il tipo non è ancora indicato.
+--   vuoto    Non è una reverse.
+-- Non scrivere la reverse in is_foil: quel campo resta il foil sull'arte.
+-- ------------------------------------------------------------
+alter table public.cards add column if not exists rarity text;
+alter table public.cards add column if not exists reverse_style text;
+
 -- 2) Crea (o ricrea) la vista.
 --    Lo status delle carte in vendita nel tuo database e' 'in_stock'.
 --    (per controllare i valori: select status, count(*) from public.cards group by status;)
@@ -54,6 +78,8 @@ select
   condition,
   is_foil,
   is_japanese,
+  rarity,                                                -- rarità (PASSO C)
+  reverse_style,                                         -- epoca | moderna | generica (PASSO C)
   -- game,                                               -- <-- PASSO A: togli "--" dopo averlo fatto
   coalesce(target_price, current_market_price) as price,  -- prezzo mostrato sul sito
   image_url,

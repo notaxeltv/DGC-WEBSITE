@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { rarityLabel, reverseLabel } from "../lib/cardTraits";
 import type { Card } from "../lib/types";
 
 const KEY = "dgc-wishlist";
@@ -10,6 +11,8 @@ export interface WishItem {
   number: string;
   condition: string;
   language: string;
+  rarity?: string;
+  reverse?: string;
   foil: boolean;
   japanese: boolean;
   price: number | null;
@@ -56,6 +59,8 @@ export function useWishlist() {
           number: card.number,
           condition: card.condition,
           language: card.language,
+          rarity: rarityLabel(card.rarity),
+          reverse: reverseLabel(card.reverse),
           foil: card.foil,
           japanese: card.japanese,
           price: card.price,

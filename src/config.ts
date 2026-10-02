@@ -42,7 +42,7 @@ export const CARDS_TABLE = "public_cards";
  */
 export const COLUMNS: Record<
   | "id" | "name" | "set" | "number" | "game" | "condition" | "language" | "japanese"
-  | "rarity" | "price" | "quantity" | "image" | "foil" | "updatedAt" | "createdAt"
+  | "rarity" | "reverse" | "price" | "quantity" | "image" | "foil" | "updatedAt" | "createdAt"
   | "cardtraderUrl" | "cardmarketUrl" | "vintedUrl" | "ebayUrl",
   string | null
 > = {
@@ -56,7 +56,10 @@ export const COLUMNS: Record<
   condition: "condition", // condizione
   language: "language", // lingua
   japanese: "is_japanese", // carta giapponese (sì/no)
-  rarity: null, // nel DB non c'è la colonna "rarità"
+  rarity: "rarity", // rarità (testo). Vedi supabase/public_cards.sql
+  // Tipo di reverse: epoca | moderna | generica. Null = non è una reverse.
+  // Non si deduce da is_foil. Vedi supabase/public_cards.sql
+  reverse: "reverse_style",
   price: "price", // prezzo di vendita (calcolato nella vista)
   // Nessuna colonna quantità: ogni riga = 1 copia e le righe uguali vengono raggruppate.
   quantity: null,
@@ -89,8 +92,8 @@ export const PAGE_SIZE = 24;
 export const REFRESH_SECONDS = 30;
 
 /**
- * Raggruppa le copie identiche (stesso nome, espansione, condizione, lingua,
- * foil e prezzo) in un'unica carta con la quantità sommata.
+ * Raggruppa le copie identiche (stesso nome, espansione, numero, condizione,
+ * lingua, rarità, foil, tipo di reverse e prezzo) in un'unica carta con la quantità sommata.
  */
 export const GROUP_IDENTICAL_COPIES = true;
 

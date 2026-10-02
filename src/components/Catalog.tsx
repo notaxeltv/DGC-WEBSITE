@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { NEW_ARRIVALS, PAGE_SIZE } from "../config";
 import type { Wishlist } from "../hooks/useWishlist";
+import { RARITIES, rarityLabel, type ReverseStyle } from "../lib/cardTraits";
 import type { Card } from "../lib/types";
 import CardItem from "./CardItem";
 import CardModal from "./CardModal";
@@ -9,6 +10,7 @@ import ConditionGuide from "./ConditionGuide";
 type Sort = "name" | "price-asc" | "price-desc" | "recent";
 type FoilFilter = "" | "si" | "no";
 type PriceBand = "" | "sotto50" | "50-100" | "oltre100";
+type ReverseFilter = "" | ReverseStyle | "qualsiasi" | "no";
 
 const SORTS: Sort[] = ["name", "price-asc", "price-desc", "recent"];
 const PRICES: PriceBand[] = ["", "sotto50", "50-100", "oltre100"];
@@ -17,6 +19,16 @@ const PRICE_LABEL: Record<Exclude<PriceBand, "">, string> = {
   sotto50: "Sotto 50 €",
   "50-100": "50–100 €",
   oltre100: "Oltre 100 €",
+};
+
+const REVERSES: ReverseFilter[] = ["", "epoca", "moderna", "generica", "qualsiasi", "no"];
+
+const REVERSE_LABEL: Record<Exclude<ReverseFilter, "">, string> = {
+  epoca: "Reverse d'epoca (timbro del set)",
+  moderna: "Reverse moderna (da Paldea)",
+  generica: "Reverse (altro motivo)",
+  qualsiasi: "Qualsiasi reverse",
+  no: "Senza reverse",
 };
 
 interface Props {
@@ -31,6 +43,7 @@ const unique = (arr: string[]) => Array.from(new Set(arr.filter(Boolean))).sort(
 
 const asFoil = (v: string | null): FoilFilter => (v === "si" || v === "no" ? v : "");
 const asPrice = (v: string | null): PriceBand => (PRICES.includes(v as PriceBand) ? (v as PriceBand) : "");
+const asReverse = (v: string | null): ReverseFilter => (REVERSES.includes(v as ReverseFilter) ? (v as ReverseFilter) : "");
 
 /** Legge i filtri dal link (es. ?q=charizard&gioco=Pokémon) così le ricerche si possono condividere */
 function readUrl() {
@@ -43,6 +56,8 @@ function readUrl() {
     condition: p.get("cond") ?? "",
     language: p.get("lingua") ?? "",
     foil: asFoil(p.get("foil")),
+    rarity: p.get("rar") ?? "",
+    reverse: asReverse(p.get("rev")),
     price: asPrice(p.get("prezzo")),
     sort: sort && SORTS.includes(sort) ? sort : ("name" as Sort),
     cardId: p.get("carta") ?? "",
@@ -57,6 +72,13 @@ function matchesPrice(price: number | null, band: PriceBand) {
   return price > 100;
 }
 
+function matchesReverse(card: Card, filter: ReverseFilter) {
+  if (!filter) return true;
+  if (filter === "no") return !card.reverse;
+  if (filter === "qualsiasi") return Boolean(card.reverse);
+  return card.reverse === filter;
+}
+
 export default function Catalog({ cards, loading, error, demo, wishlist }: Props) {
   const initial = useMemo(readUrl, []);
   const [search, setSearch] = useState(initial.search);
@@ -65,6 +87,8 @@ export default function Catalog({ cards, loading, error, demo, wishlist }: Props
   const [condition, setCondition] = useState(initial.condition);
   const [language, setLanguage] = useState(initial.language);
   const [foil, setFoil] = useState<FoilFilter>(initial.foil);
+  const [rarity, setRarity] = useState(initial.rarity);
+  const [reverse, setReverse] = useState<ReverseFilter>(initial.reverse);
   const [price, setPrice] = useState<PriceBand>(initial.price);
   const [sort, setSort] = useState<Sort>(initial.sort);
   const [cardId, setCardId] = useState(initial.cardId);
@@ -76,6 +100,14 @@ export default function Catalog({ cards, loading, error, demo, wishlist }: Props
   const sets = useMemo(() => unique(cards.map((c) => c.set)), [cards]);
   const conditions = useMemo(() => unique(cards.map((c) => c.condition)), [cards]);
   const languages = useMemo(() => unique(cards.map((c) => c.language)), [cards]);
+  const rarityOptions = useMemo(() => {
+    const known = new Set(RARITIES.map((r) => r.id));
+    const extra = unique(cards.map((c) => c.rarityId).filter((id) => id && !known.has(id))).map((id) => ({
+      id,
+      label: rarityLabel(cards.find((c) => c.rarityId === id)?.rarity || id),
+    }));
+    return [...RARITIES, ...extra];
+  }, [cards]);
 
   const selected = cards.find((c) => c.id === cardId) ?? null;
 
@@ -87,14 +119,16 @@ export default function Catalog({ cards, loading, error, demo, wishlist }: Props
     if (condition) p.set("cond", condition);
     if (language) p.set("lingua", language);
     if (foil) p.set("foil", foil);
+    if (rarity) p.set("rar", rarity);
+    if (reverse) p.set("rev", reverse);
     if (price) p.set("prezzo", price);
     if (sort !== "name") p.set("ord", sort);
     if (cardId) p.set("carta", cardId);
     const qs = p.toString();
     window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash);
-  }, [search, game, setName, condition, language, foil, price, sort, cardId]);
+  }, [search, game, setName, condition, language, foil, rarity, reverse, price, sort, cardId]);
 
-  useEffect(() => setVisible(PAGE_SIZE), [search, game, setName, condition, language, foil, price, sort]);
+  useEffect(() => setVisible(PAGE_SIZE), [search, game, setName, condition, language, foil, rarity, reverse, price, sort]);
 
   useEffect(() => {
     if (!sheet) return;
@@ -119,6 +153,8 @@ export default function Catalog({ cards, loading, error, demo, wishlist }: Props
         (!condition || c.condition === condition) &&
         (!language || c.language === language) &&
         (!foil || (foil === "si" ? c.foil : !c.foil)) &&
+        (!rarity || c.rarityId === rarity) &&
+        matchesReverse(c, reverse) &&
         matchesPrice(c.price, price)
       );
     });
@@ -129,7 +165,7 @@ export default function Catalog({ cards, loading, error, demo, wishlist }: Props
       case "recent": return list.sort((a, b) => (b.createdAt ?? b.updatedAt ?? "").localeCompare(a.createdAt ?? a.updatedAt ?? ""));
       default: return list.sort((a, b) => a.name.localeCompare(b.name));
     }
-  }, [cards, search, game, setName, condition, language, foil, price, sort]);
+  }, [cards, search, game, setName, condition, language, foil, rarity, reverse, price, sort]);
 
   const reset = () => {
     setSearch("");
@@ -138,11 +174,13 @@ export default function Catalog({ cards, loading, error, demo, wishlist }: Props
     setCondition("");
     setLanguage("");
     setFoil("");
+    setRarity("");
+    setReverse("");
     setPrice("");
   };
 
-  const hasFilters = Boolean(search || game || setName || condition || language || foil || price);
-  const panelCount = [game, setName, condition, language, foil, price].filter(Boolean).length;
+  const hasFilters = Boolean(search || game || setName || condition || language || foil || rarity || reverse || price);
+  const panelCount = [game, setName, condition, language, foil, rarity, reverse, price].filter(Boolean).length;
 
   const chips: { key: string; label: string; clear: () => void }[] = [];
   if (search) chips.push({ key: "q", label: search, clear: () => setSearch("") });
@@ -151,6 +189,8 @@ export default function Catalog({ cards, loading, error, demo, wishlist }: Props
   if (condition) chips.push({ key: "cond", label: condition, clear: () => setCondition("") });
   if (language) chips.push({ key: "lang", label: language, clear: () => setLanguage("") });
   if (foil) chips.push({ key: "foil", label: foil === "si" ? "Solo foil" : "Senza foil", clear: () => setFoil("") });
+  if (rarity) chips.push({ key: "rarity", label: rarityOptions.find((r) => r.id === rarity)?.label ?? rarityLabel(rarity), clear: () => setRarity("") });
+  if (reverse) chips.push({ key: "reverse", label: REVERSE_LABEL[reverse], clear: () => setReverse("") });
   if (price) chips.push({ key: "price", label: PRICE_LABEL[price], clear: () => setPrice("") });
 
   const newArrivals = useMemo(() => {
@@ -239,6 +279,19 @@ export default function Catalog({ cards, loading, error, demo, wishlist }: Props
               <option value="si">Solo foil</option>
               <option value="no">Senza foil</option>
             </select>
+            <select value={rarity} onChange={(e) => setRarity(e.target.value)} aria-label="Rarità">
+              <option value="">Ogni rarità</option>
+              {rarityOptions.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
+            </select>
+            <select value={reverse} onChange={(e) => setReverse(asReverse(e.target.value))} aria-label="Reverse">
+              <option value="">Reverse e non</option>
+              {(Object.keys(REVERSE_LABEL) as Exclude<ReverseFilter, "">[]).map((id) => (
+                <option key={id} value={id}>{REVERSE_LABEL[id]}</option>
+              ))}
+            </select>
+            <p className="filters__hint">
+              La reverse non è la rarità olografica. D'epoca: da EX Team Rocket Returns il logo del set è stampato nell'illustrazione. Moderna: da Evoluzioni a Paldea il foil è sul corpo della carta (ciottoli, poi anche Poké Ball o Master Ball).
+            </p>
             <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Ordina">
               <option value="name">Nome A–Z</option>
               <option value="price-asc">Prezzo ↑</option>

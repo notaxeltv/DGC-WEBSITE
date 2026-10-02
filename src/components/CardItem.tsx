@@ -1,4 +1,5 @@
 import { CONDITION_LABELS } from "../config";
+import { rarityLabel, reverseLabel } from "../lib/cardTraits";
 import type { Card } from "../lib/types";
 
 export const formatPrice = (p: number | null) =>
@@ -31,6 +32,11 @@ export default function CardItem({ card, onOpen }: Props) {
       <div className="card__media">
         <CardImage card={card} />
         {card.foil && <span className="card__badge card__badge--foil">Foil</span>}
+        {card.reverse && (
+          <span className={`card__badge card__badge--reverse card__badge--reverse-${card.reverse}`}>
+            {reverseLabel(card.reverse)}
+          </span>
+        )}
         {out && <span className="card__badge card__badge--out">Esaurita</span>}
       </div>
       <div className="card__body">
@@ -44,6 +50,7 @@ export default function CardItem({ card, onOpen }: Props) {
           )}
           {card.language && <span className="tag">{card.language}</span>}
           {card.japanese && <span className="tag">JP</span>}
+          {card.rarity && <span className="tag">{rarityLabel(card.rarity)}</span>}
         </div>
         <div className="card__footer">
           <span className="card__price">{formatPrice(card.price)}</span>

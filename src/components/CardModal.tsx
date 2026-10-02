@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { CONDITION_LABELS } from "../config";
+import { rarityLabel, reverseDetail } from "../lib/cardTraits";
 import { MARKETS, type Card } from "../lib/types";
 import { CardImage, formatPrice } from "./CardItem";
 import { CHANNELS, Icon } from "./SocialLinks";
@@ -27,7 +28,8 @@ export default function CardModal({ card, onClose, onAdd, inList }: Props) {
     ["Gioco", card.game],
     ["Espansione", card.set],
     ["Numero", card.number],
-    ["Rarità", card.rarity],
+    ["Rarità", rarityLabel(card.rarity)],
+    ["Reverse", reverseDetail(card.reverse)],
     ["Condizione", card.condition ? `${card.condition}${CONDITION_LABELS[card.condition] ? ` – ${CONDITION_LABELS[card.condition]}` : ""}` : ""],
     ["Lingua", card.language],
     ["Edizione giapponese", card.japanese ? "Sì" : ""],

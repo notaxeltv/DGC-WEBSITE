@@ -5,7 +5,7 @@ import { formatPrice } from "./CardItem";
 import SocialLinks from "./SocialLinks";
 
 const describe = (i: WishItem) =>
-  [i.set && i.number ? `${i.set} #${i.number}` : i.set, i.condition, i.language, i.japanese && "JP", i.foil && "Foil"]
+  [i.set && i.number ? `${i.set} #${i.number}` : i.set, i.condition, i.language, i.japanese && "JP", i.rarity, i.reverse, i.foil && "Foil"]
     .filter(Boolean)
     .join(", ");
 
