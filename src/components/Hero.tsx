@@ -24,6 +24,15 @@ export default function Hero({ totalCards, totalCopies }: Props) {
   }, []);
 
   useEffect(() => {
+    if (showLogo) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [showLogo]);
+
+  useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     if (showLogo) {
@@ -81,42 +90,28 @@ export default function Hero({ totalCards, totalCopies }: Props) {
 
   return (
     <section className="hero" id="top">
-      <div className="hero__smoke" aria-hidden />
-      <div className="hero__inner">
-        <div className="hero__stage">
-          <img
-            src="/logo.png"
-            alt={showLogo ? SITE.name : ""}
-            width={800}
-            height={800}
-            aria-hidden={!showLogo}
-            className={`hero__logo ${showLogo ? "" : "hero__logo--hidden"}`}
-          />
-          <video
-            ref={videoRef}
-            className={`hero__video ${showLogo ? "hero__video--hidden" : ""}`}
-            src={src}
-            muted={muted}
-            playsInline
-            preload="auto"
-            aria-label="Video di apertura"
-            onEnded={() => setShowLogo(true)}
-            onError={handleError}
-          />
+      <video
+        ref={videoRef}
+        className={`hero__video ${showLogo ? "hero__video--hidden" : ""}`}
+        src={src}
+        muted={muted}
+        playsInline
+        preload="auto"
+        aria-label="Video di apertura"
+        onEnded={() => setShowLogo(true)}
+        onError={handleError}
+      />
+      {!showLogo && <div className="hero__video-shade" aria-hidden />}
 
-          {!showLogo && (
-            <div className="hero__video-controls">
-              {needsTap && (
-                <button type="button" className="btn btn--primary" onClick={playNow}>
-                  ▶ Avvia
-                </button>
-              )}
-              <button type="button" className="btn btn--ghost" onClick={toggleSound}>
-                {muted ? "🔇 Attiva audio" : "🔊 Disattiva audio"}
-              </button>
-            </div>
-          )}
-        </div>
+      <div className="hero__smoke" aria-hidden />
+      <div className={`hero__inner ${showLogo ? "" : "hero__inner--hidden"}`}>
+        <img
+          src="/logo.png"
+          alt={SITE.name}
+          width={800}
+          height={800}
+          className="hero__logo"
+        />
 
         {showLogo && (
           <button type="button" className="btn btn--ghost hero__replay" onClick={replay}>
@@ -135,7 +130,24 @@ export default function Hero({ totalCards, totalCopies }: Props) {
           <li><strong>100%</strong><span>aggiornato in tempo reale</span></li>
         </ul>
       </div>
-      <a href="#catalogo" className="hero__scroll" aria-label="Scorri">⌄</a>
+
+      {!showLogo && (
+        <div className="hero__video-controls">
+          {needsTap && (
+            <button type="button" className="btn btn--primary" onClick={playNow}>
+              ▶ Avvia
+            </button>
+          )}
+          <button type="button" className="btn btn--ghost" onClick={toggleSound}>
+            {muted ? "🔇 Audio" : "🔊 Audio"}
+          </button>
+          <button type="button" className="btn btn--ghost" onClick={() => setShowLogo(true)}>
+            Salta
+          </button>
+        </div>
+      )}
+
+      {showLogo && <a href="#catalogo" className="hero__scroll" aria-label="Scorri">⌄</a>}
     </section>
   );
 }
