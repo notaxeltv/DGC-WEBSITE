@@ -184,22 +184,6 @@ code { background: var(--surface-2); padding: 0 6px; border-radius: 4px; color: 
 .filters__apply { display: none; }
 .filters__backdrop { display: none; }
 .filters__hint { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: .8rem; line-height: 1.45; }
-.card-fill__form { margin-bottom: 1rem; }
-.card-fill__grid { display: grid; grid-template-columns: 180px 1fr; gap: 1.25rem; align-items: start; }
-.card-fill__image { width: 180px; height: auto; align-self: start; border-radius: 12px; background: #000; }
-.card-fill__fields { grid-template-columns: 1fr 1fr; }
-.card-fill__fields label { display: flex; flex-direction: column; gap: .35rem; color: var(--muted); font-size: .8rem; }
-.card-fill__fields label.card-fill__check {
-  flex-direction: row; align-items: center; gap: .6rem; grid-column: 1 / -1;
-  color: var(--silver); font-size: .95rem;
-}
-.card-fill__fields label.card-fill__check input { width: auto; }
-.card-fill__actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.25rem; }
-@media (max-width: 720px) {
-  .card-fill__grid { grid-template-columns: 1fr; }
-  .card-fill__image { width: min(180px, 50%); }
-  .card-fill__fields { grid-template-columns: 1fr; }
-}
 .price-bands { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .5rem; }
 .price-band {
   padding: .45rem .8rem; color: var(--lilac); background: transparent;
