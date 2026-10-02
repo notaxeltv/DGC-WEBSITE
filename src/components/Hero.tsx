@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { HAS_CONTACTS, SITE } from "../config";
-import { isPortraitScreen, pickIntroVideo } from "../lib/introVideo";
 
 interface Props {
   totalCards: number;
@@ -9,8 +8,6 @@ interface Props {
 
 export default function Hero({ totalCards, totalCopies }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const fellBack = useRef(false);
-  const [src, setSrc] = useState(() => pickIntroVideo(isPortraitScreen()));
   const [showLogo, setShowLogo] = useState(false);
   const [muted, setMuted] = useState(true);
   const [needsTap, setNeedsTap] = useState(false);
@@ -21,24 +18,11 @@ export default function Hero({ totalCards, totalCopies }: Props) {
     const onEnd = () => setShowLogo(true);
     v.addEventListener("ended", onEnd);
     return () => v.removeEventListener("ended", onEnd);
-  }, []);
-
-  useEffect(() => {
-    if (showLogo) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
-    };
   }, [showLogo]);
 
   useEffect(() => {
     const v = videoRef.current;
-    if (!v) return;
-    if (showLogo) {
-      v.pause();
-      return;
-    }
+    if (!v || showLogo) return;
 
     const play = () => {
       v.play().catch(() => setNeedsTap(true));
@@ -58,22 +42,11 @@ export default function Hero({ totalCards, totalCopies }: Props) {
       v.load();
     }
     return () => v.removeEventListener("loadeddata", onReady);
-  }, [showLogo, src]);
+  }, [showLogo]);
 
   const replay = () => {
-    fellBack.current = false;
     setNeedsTap(false);
-    setSrc(pickIntroVideo(isPortraitScreen()));
     setShowLogo(false);
-  };
-
-  const handleError = () => {
-    if (!fellBack.current && src !== SITE.introVideo) {
-      fellBack.current = true;
-      setSrc(SITE.introVideo);
-      return;
-    }
-    setShowLogo(true);
   };
 
   const toggleSound = () => {
@@ -90,28 +63,44 @@ export default function Hero({ totalCards, totalCopies }: Props) {
 
   return (
     <section className="hero" id="top">
-      <video
-        ref={videoRef}
-        className={`hero__video ${showLogo ? "hero__video--hidden" : ""}`}
-        src={src}
-        muted={muted}
-        playsInline
-        preload="auto"
-        aria-label="Video di apertura"
-        onEnded={() => setShowLogo(true)}
-        onError={handleError}
-      />
-      {!showLogo && <div className="hero__video-shade" aria-hidden />}
-
       <div className="hero__smoke" aria-hidden />
-      <div className={`hero__inner ${showLogo ? "" : "hero__inner--hidden"}`}>
-        <img
-          src="/logo.png"
-          alt={SITE.name}
-          width={800}
-          height={800}
-          className="hero__logo"
-        />
+      <div className="hero__inner">
+        <div className={`hero__media ${showLogo ? "hero__media--logo" : ""}`}>
+          {showLogo ? (
+            <img
+              src="/logo.png"
+              alt={SITE.name}
+              width={800}
+              height={800}
+              className="hero__logo"
+            />
+          ) : (
+            <video
+              ref={videoRef}
+              className="hero__video"
+              src={SITE.introVideo}
+              muted={muted}
+              playsInline
+              preload="auto"
+              aria-label="Video di Dark Ghost Cards"
+              onEnded={() => setShowLogo(true)}
+              onError={() => setShowLogo(true)}
+            />
+          )}
+
+          {!showLogo && (
+            <div className="hero__video-controls">
+              {needsTap && (
+                <button type="button" className="btn btn--primary" onClick={playNow}>
+                  ▶ Avvia
+                </button>
+              )}
+              <button type="button" className="btn btn--ghost" onClick={toggleSound}>
+                {muted ? "🔇 Audio" : "🔊 Audio"}
+              </button>
+            </div>
+          )}
+        </div>
 
         {showLogo && (
           <button type="button" className="btn btn--ghost hero__replay" onClick={replay}>
@@ -130,24 +119,7 @@ export default function Hero({ totalCards, totalCopies }: Props) {
           <li><strong>100%</strong><span>aggiornato in tempo reale</span></li>
         </ul>
       </div>
-
-      {!showLogo && (
-        <div className="hero__video-controls">
-          {needsTap && (
-            <button type="button" className="btn btn--primary" onClick={playNow}>
-              ▶ Avvia
-            </button>
-          )}
-          <button type="button" className="btn btn--ghost" onClick={toggleSound}>
-            {muted ? "🔇 Audio" : "🔊 Audio"}
-          </button>
-          <button type="button" className="btn btn--ghost" onClick={() => setShowLogo(true)}>
-            Salta
-          </button>
-        </div>
-      )}
-
-      {showLogo && <a href="#catalogo" className="hero__scroll" aria-label="Scorri">⌄</a>}
+      <a href="#catalogo" className="hero__scroll" aria-label="Scorri">⌄</a>
     </section>
   );
 }
