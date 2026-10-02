@@ -1,0 +1,7 @@
+Metti qui il video di apertura e chiamalo:  intro.mp4
+
+Consigli:
+- formato MP4 (H.264 + AAC), 1920x1080, idealmente sotto i 15 MB
+- durata 5-15 secondi
+- finché il file non c'è, il sito salta automaticamente l'intro
+- per cambiare nome/percorso: src/config.ts -> SITE.introVideo
