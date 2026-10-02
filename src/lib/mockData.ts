@@ -16,7 +16,7 @@ const base = (
   id,
   name,
   set,
-  number: "",
+  number: id.padStart(3, "0"),
   japanese: false,
   game,
   condition,

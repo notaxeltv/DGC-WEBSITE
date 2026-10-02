@@ -118,6 +118,7 @@ export default function Hero({ totalCards, totalCopies }: Props) {
           </button>
         )}
 
+        <p className="hero__ship">Bustina e toploader, spedizione tracciata.</p>
         <p className="hero__tagline">{SITE.tagline}</p>
         <div className="hero__actions">
           <a href="#catalogo" className="btn btn--primary">Esplora il catalogo</a>
